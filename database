@@ -1,0 +1,252 @@
+create table admins
+(
+    id            bigint auto_increment
+        primary key,
+    email         varchar(255)                        not null,
+    password_hash varchar(255)                        not null,
+    created_at    timestamp default CURRENT_TIMESTAMP null,
+    updated_at    timestamp default CURRENT_TIMESTAMP null on update CURRENT_TIMESTAMP,
+    constraint email
+        unique (email)
+);
+
+create table categories
+(
+    id         bigint auto_increment
+        primary key,
+    name       varchar(100)                        not null,
+    slug       varchar(100)                        not null,
+    created_at timestamp default CURRENT_TIMESTAMP null,
+    updated_at timestamp default CURRENT_TIMESTAMP null on update CURRENT_TIMESTAMP,
+    constraint slug
+        unique (slug)
+);
+
+create table coupons
+(
+    id             bigint auto_increment
+        primary key,
+    code           varchar(50)                          not null,
+    discount_type  enum ('PERCENT', 'FIXED')            not null,
+    discount_value decimal(10, 2)                       not null,
+    valid_from     timestamp                            null,
+    valid_until    timestamp                            null,
+    is_active      tinyint(1) default 1                 null,
+    created_at     timestamp  default CURRENT_TIMESTAMP null,
+    updated_at     timestamp  default CURRENT_TIMESTAMP null on update CURRENT_TIMESTAMP,
+    constraint code
+        unique (code)
+);
+
+create table customers
+(
+    id            bigint auto_increment
+        primary key,
+    email         varchar(255)                        not null,
+    first_name    varchar(100)                        null,
+    last_name     varchar(100)                        null,
+    phon          varchar(20)                         null,
+    password_hash varchar(255)                        null,
+    created_at    timestamp default CURRENT_TIMESTAMP null,
+    updated_at    timestamp default CURRENT_TIMESTAMP null on update CURRENT_TIMESTAMP,
+    constraint email
+        unique (email)
+);
+
+create table addresses
+(
+    id             bigint auto_increment
+        primary key,
+    customer_id    bigint                               not null,
+    city           varchar(100)                         not null,
+    street         varchar(150)                         not null,
+    house_number   varchar(20)                          not null,
+    zip_code       varchar(20)                          not null,
+    apartment      varchar(20)                          null,
+    delivery_notes text                                 null,
+    is_default     tinyint(1) default 0                 null,
+    created_at     timestamp  default CURRENT_TIMESTAMP null,
+    updated_at     timestamp  default CURRENT_TIMESTAMP null on update CURRENT_TIMESTAMP,
+    constraint addresses_ibfk_1
+        foreign key (customer_id) references customers (id)
+            on delete cascade
+);
+
+create index customer_id
+    on addresses (customer_id);
+
+create table orders
+(
+    id               bigint auto_increment
+        primary key,
+    customer_id      bigint                                                                                      not null,
+    coupon_id        bigint                                                                                      null,
+    total_price      decimal(10, 2)                                                                              not null,
+    status           enum ('PENDING_PAYMENT', 'IN_PRODUCTION', 'SHIPPED', 'CANCELLED') default 'PENDING_PAYMENT' null,
+    shipping_address text                                                                                        not null,
+    shipping_company varchar(100)                                                                                null,
+    tracking_number  varchar(100)                                                                                null,
+    created_at       timestamp                                                         default CURRENT_TIMESTAMP null,
+    updated_at       timestamp                                                         default CURRENT_TIMESTAMP null on update CURRENT_TIMESTAMP,
+    constraint orders_ibfk_1
+        foreign key (customer_id) references customers (id),
+    constraint orders_ibfk_2
+        foreign key (coupon_id) references coupons (id)
+);
+
+create index coupon_id
+    on orders (coupon_id);
+
+create index customer_id
+    on orders (customer_id);
+
+create table payments
+(
+    id             bigint auto_increment
+        primary key,
+    order_id       bigint                                                          not null,
+    transaction_id varchar(255)                                                    null,
+    amount         decimal(10, 2)                                                  not null,
+    status         enum ('PENDING', 'SUCCESS', 'FAILED') default 'PENDING'         null,
+    error_code     varchar(50)                                                     null,
+    error_message  text                                                            null,
+    created_at     timestamp                             default CURRENT_TIMESTAMP null,
+    updated_at     timestamp                             default CURRENT_TIMESTAMP null on update CURRENT_TIMESTAMP,
+    constraint payments_ibfk_1
+        foreign key (order_id) references orders (id)
+            on delete cascade
+);
+
+create index order_id
+    on payments (order_id);
+
+create table products
+(
+    id                     bigint auto_increment
+        primary key,
+    category_id            bigint                                  not null,
+    base_sku               varchar(50)                             not null,
+    name                   varchar(150)                            not null,
+    slug                   varchar(150)                            not null,
+    description            text                                    null,
+    is_active              tinyint(1)    default 1                 null,
+    dynamic_diamonds_count int           default 0                 null,
+    fixed_diamonds_count   int           default 0                 null,
+    fixed_diamonds_weight  decimal(5, 2) default 0.00              null,
+    created_at             timestamp     default CURRENT_TIMESTAMP null,
+    updated_at             timestamp     default CURRENT_TIMESTAMP null on update CURRENT_TIMESTAMP,
+    constraint base_sku
+        unique (base_sku),
+    constraint slug
+        unique (slug),
+    constraint products_ibfk_1
+        foreign key (category_id) references categories (id)
+);
+
+create table product_media
+(
+    id         bigint auto_increment
+        primary key,
+    product_id bigint                                            not null,
+    url        varchar(512)                                      not null,
+    media_type enum ('IMAGE', 'VIDEO') default 'IMAGE'           null,
+    is_main    tinyint(1)              default 0                 null,
+    created_at timestamp               default CURRENT_TIMESTAMP null,
+    constraint product_media_ibfk_1
+        foreign key (product_id) references products (id)
+            on delete cascade
+);
+
+create index product_id
+    on product_media (product_id);
+
+create table product_variants
+(
+    id               bigint auto_increment
+        primary key,
+    product_id       bigint                              not null,
+    weight_per_stone decimal(5, 2)                       null,
+    total_carat      decimal(5, 2)                       null,
+    price            decimal(10, 2)                      not null,
+    stock_quantity   int       default 0                 null,
+    created_at       timestamp default CURRENT_TIMESTAMP null,
+    updated_at       timestamp default CURRENT_TIMESTAMP null on update CURRENT_TIMESTAMP,
+    constraint product_variants_ibfk_1
+        foreign key (product_id) references products (id)
+            on delete cascade
+);
+
+create table order_items
+(
+    id             bigint auto_increment
+        primary key,
+    order_id       bigint                              not null,
+    variant_id     bigint                              not null,
+    metal_type     varchar(50)                         not null,
+    size_value     decimal(5, 2)                       null,
+    size_unit      varchar(20)                         null,
+    engraving_text varchar(255)                        null,
+    special_notes  text                                null,
+    selling_price  decimal(10, 2)                      not null,
+    goldsmith_cost decimal(10, 2)                      null,
+    created_at     timestamp default CURRENT_TIMESTAMP null,
+    constraint order_items_ibfk_1
+        foreign key (order_id) references orders (id)
+            on delete cascade,
+    constraint order_items_ibfk_2
+        foreign key (variant_id) references product_variants (id)
+);
+
+create index order_id
+    on order_items (order_id);
+
+create index variant_id
+    on order_items (variant_id);
+
+create index product_id
+    on product_variants (product_id);
+
+create index category_id
+    on products (category_id);
+
+create table shopping_cart
+(
+    id          bigint auto_increment
+        primary key,
+    customer_id bigint                              null,
+    created_at  timestamp default CURRENT_TIMESTAMP null,
+    updated_at  timestamp default CURRENT_TIMESTAMP null on update CURRENT_TIMESTAMP,
+    constraint shopping_cart_ibfk_1
+        foreign key (customer_id) references customers (id)
+            on delete cascade
+);
+
+create table cart_items
+(
+    id         bigint auto_increment
+        primary key,
+    cart_id    bigint                              not null,
+    variant_id bigint                              not null,
+    metal_type varchar(50)                         null,
+    size_value decimal(5, 2)                       null,
+    size_unit  varchar(20)                         null,
+    created_at timestamp default CURRENT_TIMESTAMP null,
+    updated_at timestamp default CURRENT_TIMESTAMP null on update CURRENT_TIMESTAMP,
+    constraint cart_items_ibfk_1
+        foreign key (cart_id) references shopping_cart (id)
+            on delete cascade,
+    constraint cart_items_ibfk_2
+        foreign key (variant_id) references product_variants (id)
+            on delete cascade
+);
+
+create index cart_id
+    on cart_items (cart_id);
+
+create index variant_id
+    on cart_items (variant_id);
+
+create index customer_id
+    on shopping_cart (customer_id);
+
+
