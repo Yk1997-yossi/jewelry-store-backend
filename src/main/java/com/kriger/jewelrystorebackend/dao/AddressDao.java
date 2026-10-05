@@ -1,5 +1,4 @@
 package com.kriger.jewelrystorebackend.dao;
-
 import javax.sql.DataSource;
 
 public class AddressDao {
@@ -8,4 +7,5 @@ public class AddressDao {
     public AddressDao(DataSource dataSource){
         this.dataSource = dataSource;
     }
+    public
 }

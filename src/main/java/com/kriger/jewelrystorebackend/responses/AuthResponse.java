@@ -1,22 +1,22 @@
 package com.kriger.jewelrystorebackend.responses;
 
-import com.kriger.jewelrystorebackend.models.Customer;
+import com.kriger.jewelrystorebackend.dtos.CustomerResponseDTO;
 
 public class AuthResponse extends BasicResponse{
-    private Customer customer;
+    private CustomerResponseDTO customer;
     private String token;
 
-    public AuthResponse(boolean success, String errorMessage, Customer customer, String token) {
+    public AuthResponse(boolean success, String errorMessage, CustomerResponseDTO customer, String token) {
         super(success, errorMessage);
         this.customer = customer;
         this.token = token;
     }
 
-    public Customer getCustomer() {
+    public CustomerResponseDTO getCustomer() {
         return customer;
     }
 
-    public void setCustomer(Customer customer) {
+    public void setCustomer(CustomerResponseDTO customer) {
         this.customer = customer;
     }
 
@@ -27,5 +27,4 @@ public class AuthResponse extends BasicResponse{
     public void setToken(String token) {
         this.token = token;
     }
-
 }

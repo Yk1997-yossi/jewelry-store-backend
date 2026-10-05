@@ -1,5 +1,5 @@
 package com.kriger.jewelrystorebackend.services;
-
+import com.kriger.jewelrystorebackend.dtos.CustomerResponseDTO;
 import com.kriger.jewelrystorebackend.dao.CustomerDAO;
 import com.kriger.jewelrystorebackend.dtos.LoginRequestDTO;
 import com.kriger.jewelrystorebackend.dtos.RegisterRequestDTO;
@@ -12,7 +12,6 @@ import com.kriger.jewelrystorebackend.responses.CustomerResponse;
 import com.kriger.jewelrystorebackend.utils.JwtUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 
 import static com.kriger.jewelrystorebackend.errors.CustomerErrors.*;
@@ -55,8 +54,9 @@ public class CustomerService {
         if (savedCustomer == null)
             return new AuthResponse(false, DATABASE_SAVE_ERROR, null, null);
 
-        String token = this.jwtUtil.generateToken(customer.getEmail());
-        return new AuthResponse(true, null, savedCustomer, token);
+        String token = this.jwtUtil.generateToken(savedCustomer.getEmail());
+        CustomerResponseDTO customerDTO = convertToCustomerResponseDTO(savedCustomer);
+        return new AuthResponse(true, null,customerDTO, token);
     }
 
     public AuthResponse login(LoginRequestDTO request){
@@ -74,7 +74,8 @@ public class CustomerService {
             return new AuthResponse(false, INVALID_CREDENTIALS, null, null);
 
         String token = this.jwtUtil.generateToken(customer.getEmail());
-        return new AuthResponse(true, null, customer, token);
+        CustomerResponseDTO customerDTO = convertToCustomerResponseDTO(customer);
+        return new AuthResponse(true, null, customerDTO, token);
     }
 
     public CustomerResponse getCustomerById(Long id){
@@ -131,6 +132,15 @@ public class CustomerService {
         if(customerList == null)
             return new CustomerListResponse(false, DATABASE_FETCH_ERROR, null);
         return new CustomerListResponse(true, null, customerList);
+    }
+    private CustomerResponseDTO convertToCustomerResponseDTO(Customer customer) {
+        CustomerResponseDTO dto = new CustomerResponseDTO();
+        dto.setId(customer.getId());
+        dto.setEmail(customer.getEmail());
+        dto.setFirstName(customer.getFirstName());
+        dto.setLastName(customer.getLastName());
+        dto.setPhone(customer.getPhone());
+        return dto;
     }
 
     private boolean isEmailInUse(String email){
