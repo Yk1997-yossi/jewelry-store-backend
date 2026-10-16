@@ -13,8 +13,8 @@ import com.kriger.jewelrystorebackend.utils.JwtUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.List;
-
 import static com.kriger.jewelrystorebackend.errors.CustomerErrors.*;
+import java.util.ArrayList;
 
 @Service
 public class CustomerService {
@@ -82,14 +82,16 @@ public class CustomerService {
         Customer customer = this.customerDAO.getCustomerById(id);
         if(customer == null)
             return new CustomerResponse(false, CUSTOMER_NOT_FOUND, null);
-        return new CustomerResponse(true, null, customer);
+        CustomerResponseDTO customerDTO = convertToCustomerResponseDTO(customer);
+        return new CustomerResponse(true, null, customerDTO);
     }
 
     public CustomerResponse getCustomerByEmail(String email) {
         Customer customer = customerDAO.getCustomerByEmail(email);
         if (customer == null)
             return new CustomerResponse(false, CUSTOMER_NOT_FOUND, null);
-        return new CustomerResponse(true, null, customer);
+        CustomerResponseDTO customerDTO = convertToCustomerResponseDTO(customer);
+        return new CustomerResponse(true, null, customerDTO);
     }
 
     public BasicResponse deleteCustomerById(Long id) {
@@ -123,15 +125,16 @@ public class CustomerService {
         int rowsAffected = customerDAO.updateCustomer(customer);
         if (rowsAffected == 0)
             return new CustomerResponse(false, DATABASE_SAVE_ERROR, null);
-
-        return new CustomerResponse(true, null, customer);
+        CustomerResponseDTO customerDTO = convertToCustomerResponseDTO(customer);
+        return new CustomerResponse(true, null, customerDTO);
     }
 
     public CustomerListResponse getAllCustomers(){
         List<Customer> customerList = this.customerDAO.getAllCustomers();
         if(customerList == null)
             return new CustomerListResponse(false, DATABASE_FETCH_ERROR, null);
-        return new CustomerListResponse(true, null, customerList);
+        List<CustomerResponseDTO> customerDTOList = convertToCustomerResponseDTOList(customerList);
+        return new CustomerListResponse(true, null, customerDTOList);
     }
     private CustomerResponseDTO convertToCustomerResponseDTO(Customer customer) {
         CustomerResponseDTO dto = new CustomerResponseDTO();
@@ -142,7 +145,14 @@ public class CustomerService {
         dto.setPhone(customer.getPhone());
         return dto;
     }
-
+    private List<CustomerResponseDTO> convertToCustomerResponseDTOList(List<Customer> customerList) {
+        List<CustomerResponseDTO> customerDTOList = new ArrayList<>();
+        for (Customer customer : customerList) {
+            CustomerResponseDTO customerDTO = convertToCustomerResponseDTO(customer);
+            customerDTOList.add(customerDTO);
+        }
+        return customerDTOList;
+    }
     private boolean isEmailInUse(String email){
         Customer customer = this.customerDAO.getCustomerByEmail(email);
         if(customer != null)

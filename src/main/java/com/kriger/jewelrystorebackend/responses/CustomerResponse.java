@@ -1,19 +1,19 @@
 package com.kriger.jewelrystorebackend.responses;
-import com.kriger.jewelrystorebackend.models.Customer;
+import com.kriger.jewelrystorebackend.dtos.CustomerResponseDTO;
 
 public class CustomerResponse extends BasicResponse {
-    private Customer customer;
+    private CustomerResponseDTO customer;
 
-    public CustomerResponse(boolean success, String errorMessage, Customer customer) {
+    public CustomerResponse(boolean success, String errorMessage, CustomerResponseDTO  customer) {
         super(success, errorMessage);
         this.customer = customer;
     }
 
-    public Customer getCustomer() {
+    public CustomerResponseDTO getCustomer() {
         return customer;
     }
 
-    public void setCustomer(Customer customer) {
+    public void setCustomer(CustomerResponseDTO customer) {
         this.customer = customer;
     }
 }
