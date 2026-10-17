@@ -1,5 +1,5 @@
 package com.kriger.jewelrystorebackend.controllers;
-
+import org.springframework.security.core.Authentication;
 import com.kriger.jewelrystorebackend.dtos.LoginRequestDTO;
 import com.kriger.jewelrystorebackend.dtos.RegisterRequestDTO;
 import com.kriger.jewelrystorebackend.dtos.UpdateCustomerDetailsRequestDTO;
@@ -44,5 +44,10 @@ public class CustomerController {
     @DeleteMapping("/{id}")
     public BasicResponse deleteCustomerById(@PathVariable Long id) {
         return this.customerService.deleteCustomerById(id);
+    }
+    @GetMapping("/me")
+    public BasicResponse getCurrentCustomer(Authentication authentication) {
+        String email = authentication.getName();
+        return this.customerService.getCustomerByEmail(email);
     }
 }
