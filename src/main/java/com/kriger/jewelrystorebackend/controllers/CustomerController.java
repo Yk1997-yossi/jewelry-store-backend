@@ -16,9 +16,6 @@ public class CustomerController {
         this.customerService = customerService;
     }
     @GetMapping
-    public BasicResponse getAllCustomers(){
-        return this.customerService.getAllCustomers();
-    }
     @PostMapping("/register")
     public BasicResponse addNewCustomer(@RequestBody RegisterRequestDTO request){
         return this.customerService.addNewCustomer(request);
@@ -26,15 +23,6 @@ public class CustomerController {
     @PostMapping("/login")
     public BasicResponse login(@RequestBody LoginRequestDTO request){
         return this.customerService.login(request);
-    }
-    @GetMapping("/{id}")
-    public BasicResponse getCustomerById(@PathVariable Long id){
-        return this.customerService.getCustomerById(id);
-    }
-
-    @GetMapping("/email")
-    public BasicResponse getCustomerByEmail(@RequestParam String email) {
-        return this.customerService.getCustomerByEmail(email);
     }
 
     @PutMapping("/me")
