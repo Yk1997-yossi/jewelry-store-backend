@@ -37,13 +37,21 @@ public class CustomerController {
         return this.customerService.getCustomerByEmail(email);
     }
 
-    @PutMapping("/{id}")
-    public BasicResponse updateCustomerDetails(@PathVariable Long id, @RequestBody UpdateCustomerDetailsRequestDTO update){
-        return this.customerService.updateCustomerDetails(id, update);
+    @PutMapping("/me")
+    public BasicResponse updateCurrentCustomer(
+            Authentication authentication,
+            @RequestBody UpdateCustomerDetailsRequestDTO update) {
+        String email = authentication.getName();
+        return this.customerService.updateCurrentCustomer(
+                email,
+                update
+        );
     }
-    @DeleteMapping("/{id}")
-    public BasicResponse deleteCustomerById(@PathVariable Long id) {
-        return this.customerService.deleteCustomerById(id);
+    @DeleteMapping("/me")
+    public BasicResponse deleteCurrentCustomer(
+            Authentication authentication) {
+        String email = authentication.getName();
+        return this.customerService.deleteCurrentCustomer(email);
     }
     @GetMapping("/me")
     public BasicResponse getCurrentCustomer(Authentication authentication) {

@@ -136,6 +136,29 @@ public class CustomerService {
         List<CustomerResponseDTO> customerDTOList = convertToCustomerResponseDTOList(customerList);
         return new CustomerListResponse(true, null, customerDTOList);
     }
+    public CustomerResponse updateCurrentCustomer(
+            String email,
+            UpdateCustomerDetailsRequestDTO update) {
+        Customer customer = customerDAO.getCustomerByEmail(email);
+        if (customer == null) {
+            return new CustomerResponse(
+                    false,
+                    CUSTOMER_NOT_FOUND,
+                    null
+            );
+        }
+        return updateCustomerDetails(customer.getId(), update);
+    }
+    public BasicResponse deleteCurrentCustomer(String email) {
+        Customer customer = customerDAO.getCustomerByEmail(email);
+        if (customer == null) {
+            return new BasicResponse(
+                    false,
+                    CUSTOMER_NOT_FOUND
+            );
+        }
+        return deleteCustomerById(customer.getId());
+    }
     private CustomerResponseDTO convertToCustomerResponseDTO(Customer customer) {
         CustomerResponseDTO dto = new CustomerResponseDTO();
         dto.setId(customer.getId());
