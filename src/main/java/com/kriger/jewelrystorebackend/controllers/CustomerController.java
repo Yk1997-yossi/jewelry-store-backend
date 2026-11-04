@@ -15,7 +15,6 @@ public class CustomerController {
     public CustomerController(CustomerService customerService){
         this.customerService = customerService;
     }
-    @GetMapping
     @PostMapping("/register")
     public BasicResponse addNewCustomer(@RequestBody RegisterRequestDTO request){
         return this.customerService.addNewCustomer(request);
