@@ -8,6 +8,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.sql.Statement;
 
 @Repository
 public class AddressDao {
@@ -17,17 +18,18 @@ public class AddressDao {
         this.dataSource = dataSource;
     }
 
-    public int addAddress(Long customerId, Address address){
+    public int addAddress(Long customerId,Address address){
         String sql = "INSERT INTO addresses(customer_id,city,street,house_number,zip_code,apartment,delivery_notes,is_default) VALUES(?,?,?,?,?,?,?,?)";
         try(Connection connection = dataSource.getConnection();
-            PreparedStatement ps = connection.prepareStatement(sql);) {
+            PreparedStatement ps = connection.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS);) {
             String city = address.getCity();
             String street = address.getStreet();
             String houseNumber = address.getHouseNumber();
             String zipCode = address.getZipCode();
             String apartment = address.getApartment();
             String deliveryNotes = address.getDeliveryNotes();
-            boolean isDefault = address.getDefault();
+            boolean isDefault = Boolean.TRUE.equals(address.getDefault());
+
             ps.setLong(1,customerId);
             ps.setString(2,city);
             ps.setString(3,street);
@@ -36,13 +38,22 @@ public class AddressDao {
             ps.setString(6,apartment);
             ps.setString(7,deliveryNotes);
             ps.setBoolean(8,isDefault);
-            return ps.executeUpdate();
-        } catch (SQLException e){
+
+            int rowsAffected = ps.executeUpdate();
+
+            if(rowsAffected > 0){
+                try(ResultSet rs = ps.getGeneratedKeys()){
+                    if(rs.next()){
+                        address.setId(rs.getLong(1));
+                    }
+                }
+            }
+            return rowsAffected;
+        } catch(SQLException e){
             System.err.println("Error adding address:");
             e.printStackTrace();
             return 0;
         }
-
     }
     public List<Address> getAllAddressesByCustomerId(Long customerId) {
         List<Address> addressList = new ArrayList<>();
@@ -129,6 +140,18 @@ public class AddressDao {
             return ps.executeUpdate();
         } catch (SQLException e) {
             System.err.println("Error deleting address:");
+            e.printStackTrace();
+            return 0;
+        }
+    }
+    public int clearDefaultAddressesByCustomerId(Long customerId){
+        String sql = "UPDATE addresses SET is_default = false WHERE customer_id = ?";
+        try(Connection connection = dataSource.getConnection();
+            PreparedStatement ps = connection.prepareStatement(sql);) {
+            ps.setLong(1,customerId);
+            return ps.executeUpdate();
+        } catch(SQLException e){
+            System.err.println("Error clearing default addresses:");
             e.printStackTrace();
             return 0;
         }

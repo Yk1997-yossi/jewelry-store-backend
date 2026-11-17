@@ -20,12 +20,14 @@ public class AddressService {
         this.addressDao = addressDao;
         this.customerDAO = customerDAO;
     }
-    public AddressResponse addAddress(String email, Address address){
+    public AddressResponse addAddress(String email,Address address){
         Customer customer = this.customerDAO.getCustomerByEmail(email);
         if(customer == null)
-            return new AddressResponse(false, CUSTOMER_NOT_FOUND,null);
-        if(address == null)
+            return new AddressResponse(false,CUSTOMER_NOT_FOUND,null);
+        if(!isValidAddress(address))
             return new AddressResponse(false,INVALID_ADDRESS,null);
+        if(Boolean.TRUE.equals(address.getDefault()))
+            this.addressDao.clearDefaultAddressesByCustomerId(customer.getId());
         int rowsAffected = this.addressDao.addAddress(customer.getId(),address);
         if(rowsAffected == 0)
             return new AddressResponse(false,ADDRESS_ADD_FAILED,null);
@@ -49,15 +51,17 @@ public class AddressService {
             return new AddressResponse(false, ADDRESS_NOT_FOUND, null);
         return new AddressResponse(true, null, address);
     }
-    public AddressResponse updateAddress(String email, Address address){
+    public AddressResponse updateAddress(String email,Address address){
         Customer customer = this.customerDAO.getCustomerByEmail(email);
         if(customer == null)
             return new AddressResponse(false,CUSTOMER_NOT_FOUND,null);
-        if(address == null || address.getId() == null)
+        if(!isValidAddress(address) || address.getId() == null)
             return new AddressResponse(false,INVALID_ADDRESS,null);
         Address existingAddress = this.addressDao.getAddressByIdAndCustomerId(address.getId(),customer.getId());
         if(existingAddress == null)
             return new AddressResponse(false,ADDRESS_NOT_FOUND,null);
+        if(Boolean.TRUE.equals(address.getDefault()))
+            this.addressDao.clearDefaultAddressesByCustomerId(customer.getId());
         int rowsAffected = this.addressDao.updateAddress(customer.getId(),address);
         if(rowsAffected == 0)
             return new AddressResponse(false,ADDRESS_UPDATE_FAILED,null);
@@ -74,5 +78,19 @@ public class AddressService {
         if(rowsAffected == 0)
             return new BasicResponse(false,ADDRESS_DELETE_FAILED);
         return new BasicResponse(true,null);
+    }
+    private boolean isValidAddress(Address address){
+        if(address == null)
+            return false;
+        if(address.getCity() == null || address.getCity().trim().isEmpty())
+            return false;
+        if(address.getStreet() == null || address.getStreet().trim().isEmpty())
+            return false;
+        if(address.getHouseNumber() == null || address.getHouseNumber().trim().isEmpty())
+            return false;
+        if(address.getZipCode() == null || address.getZipCode().trim().isEmpty())
+            return false;
+        return true;
+
     }
 }
