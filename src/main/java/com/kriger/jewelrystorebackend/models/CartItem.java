@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 public class CartItem {
     private Long id;
     private ProductVariant variant;
+    private int quantity = 1;
     private String metalType;
     private BigDecimal sizeValue;
     private String sizeUnit;
@@ -14,9 +15,10 @@ public class CartItem {
 
     public CartItem() {}
 
-    public CartItem(Long id, ProductVariant variant, String metalType, BigDecimal sizeValue, String sizeUnit, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    public CartItem(Long id, ProductVariant variant, int quantity, String metalType, BigDecimal sizeValue, String sizeUnit, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.variant = variant;
+        this.quantity = quantity;
         this.metalType = metalType;
         this.sizeValue = sizeValue;
         this.sizeUnit = sizeUnit;
@@ -38,6 +40,14 @@ public class CartItem {
 
     public void setVariant(ProductVariant variant) {
         this.variant = variant;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
     }
 
     public String getMetalType() {

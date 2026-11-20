@@ -1,4 +1,8 @@
+
 package com.kriger.jewelrystorebackend.models;
+import com.kriger.jewelrystorebackend.models.CartItem;
+import com.kriger.jewelrystorebackend.models.Customer;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -6,8 +10,8 @@ import java.util.List;
 public class ShoppingCart {
 
     private Long id;
-    private Customer customer; // הכלה של הלקוח
-    private List<CartItem> items; // הכלה של רשימת הפריטים
+    private Customer customer;
+    private List<CartItem> items;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -23,18 +27,43 @@ public class ShoppingCart {
         this.updatedAt = updatedAt;
     }
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public Long getId() {
+        return id;
+    }
 
-    public Customer getCustomer() { return customer; }
-    public void setCustomer(Customer customer) { this.customer = customer; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public List<CartItem> getItems() { return items; }
-    public void setItems(List<CartItem> items) { this.items = items; }
+    public Customer getCustomer() {
+        return customer;
+    }
 
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
+    }
 
-    public LocalDateTime getUpdatedAt() { return updatedAt; }
-    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+    public List<CartItem> getItems() {
+        return items;
+    }
+
+    public void setItems(List<CartItem> items) {
+        this.items = items;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
 }
