@@ -164,12 +164,13 @@ public class ShoppingCartDAO {
         return matchingCartItem;
     }
 
-    public int updateCartItemQuantity(Long cartItemId,int quantity) {
-        String sql = "UPDATE cart_items SET quantity = ? WHERE id = ?";
+    public int updateCartItemQuantity(Long cartItemId,Long cartId,int quantity) {
+        String sql = "UPDATE cart_items SET quantity = ? WHERE id = ? AND cart_id = ?";
         try(Connection connection = this.dataSource.getConnection();
             PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1,quantity);
             ps.setLong(2,cartItemId);
+            ps.setLong(3,cartId);
             return ps.executeUpdate();
         }catch(SQLException e) {
             System.err.println("Error updating cart item quantity:");
