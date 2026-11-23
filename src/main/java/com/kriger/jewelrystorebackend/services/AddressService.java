@@ -1,5 +1,5 @@
 package com.kriger.jewelrystorebackend.services;
-import com.kriger.jewelrystorebackend.dao.AddressDao;
+import com.kriger.jewelrystorebackend.dao.AddressDAO;
 import com.kriger.jewelrystorebackend.dao.CustomerDAO;
 import com.kriger.jewelrystorebackend.models.Address;
 import com.kriger.jewelrystorebackend.models.Customer;
@@ -13,10 +13,10 @@ import static com.kriger.jewelrystorebackend.errors.CustomerErrors.CUSTOMER_NOT_
 
 @Service
 public class AddressService {
-    private final AddressDao addressDao;
+    private final AddressDAO addressDao;
     private final CustomerDAO customerDAO;
 
-    public AddressService(AddressDao addressDao,CustomerDAO customerDAO){
+    public AddressService(AddressDAO addressDao, CustomerDAO customerDAO){
         this.addressDao = addressDao;
         this.customerDAO = customerDAO;
     }

@@ -11,10 +11,10 @@ import java.util.List;
 import java.sql.Statement;
 
 @Repository
-public class AddressDao {
+public class AddressDAO {
     private final DataSource dataSource;
 
-    public AddressDao(DataSource dataSource){
+    public AddressDAO(DataSource dataSource){
         this.dataSource = dataSource;
     }
 

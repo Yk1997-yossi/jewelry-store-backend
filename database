@@ -168,12 +168,20 @@ create table product_variants
     weight_per_stone decimal(5, 2)                       null,
     total_carat      decimal(5, 2)                       null,
     price            decimal(10, 2)                      not null,
-    stock_quantity   int       default 0                 null,
+    stock_quantity   int       default 0                 not null,
     created_at       timestamp default CURRENT_TIMESTAMP null,
     updated_at       timestamp default CURRENT_TIMESTAMP null on update CURRENT_TIMESTAMP,
     constraint product_variants_ibfk_1
         foreign key (product_id) references products (id)
-            on delete cascade
+            on delete cascade,
+    constraint chk_product_variants_stock
+        check (stock_quantity >= 0),
+    constraint chk_product_variants_price
+        check (price >= 0),
+    constraint chk_product_variants_weight
+        check (weight_per_stone is null or weight_per_stone >= 0),
+    constraint chk_product_variants_carat
+        check (total_carat is null or total_carat >= 0)
 );
 
 create table order_items
@@ -213,9 +221,11 @@ create table shopping_cart
 (
     id          bigint auto_increment
         primary key,
-    customer_id bigint                              null,
+    customer_id bigint                              not null,
     created_at  timestamp default CURRENT_TIMESTAMP null,
     updated_at  timestamp default CURRENT_TIMESTAMP null on update CURRENT_TIMESTAMP,
+    constraint unique_shopping_cart_customer
+        unique (customer_id),
     constraint shopping_cart_ibfk_1
         foreign key (customer_id) references customers (id)
             on delete cascade
@@ -247,7 +257,5 @@ create index cart_id
 create index variant_id
     on cart_items (variant_id);
 
-create index customer_id
-    on shopping_cart (customer_id);
 
 

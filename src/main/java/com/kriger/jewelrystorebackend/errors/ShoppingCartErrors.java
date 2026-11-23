@@ -10,4 +10,6 @@ public class ShoppingCartErrors {
     public static final String CART_ITEM_UPDATE_FAILED = "שגיאה בעדכון כמות הפריט בסל הקניות.";
     public static final String CART_ITEM_REMOVE_FAILED = "שגיאה במחיקת הפריט מסל הקניות.";
     public static final String SHOPPING_CART_CLEAR_FAILED = "שגיאה בריקון סל הקניות.";
+    public static final String VARIANT_OUT_OF_STOCK = "המוצר אינו זמין במלאי.";
+    public static final String INSUFFICIENT_STOCK = "הכמות המבוקשת גדולה מהכמות הזמינה במלאי.";
 }

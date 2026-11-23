@@ -3,6 +3,7 @@ package com.kriger.jewelrystorebackend.services;
 import com.kriger.jewelrystorebackend.dao.CustomerDAO;
 import com.kriger.jewelrystorebackend.dao.ProductVariantDAO;
 import com.kriger.jewelrystorebackend.dao.ShoppingCartDAO;
+import com.kriger.jewelrystorebackend.dtos.AddCartItemRequestDTO;
 import com.kriger.jewelrystorebackend.models.CartItem;
 import com.kriger.jewelrystorebackend.models.Customer;
 import com.kriger.jewelrystorebackend.models.ProductVariant;
@@ -44,17 +45,27 @@ public class ShoppingCartService {
         return new ShoppingCartResponse(true,null,shoppingCart);
     }
 
-    public ShoppingCartResponse addCartItem(String email,CartItem cartItem){
+    public ShoppingCartResponse addCartItem(String email,AddCartItemRequestDTO request){
         Customer customer = this.customerDAO.getCustomerByEmail(email);
         if(customer == null)
             return new ShoppingCartResponse(false,CUSTOMER_NOT_FOUND,null);
 
-        if(!isValidCartItem(cartItem))
+        if(!isValidAddCartItemRequest(request))
             return new ShoppingCartResponse(false,INVALID_CART_ITEM,null);
 
-        ProductVariant variant = this.productVariantDAO.getVariantById(cartItem.getVariant().getId());
+        ProductVariant variant = this.productVariantDAO.getVariantById(request.getVariantId());
         if(variant == null)
             return new ShoppingCartResponse(false,VARIANT_NOT_FOUND,null);
+
+        if(variant.getStockQuantity() == null || variant.getStockQuantity() <= 0)
+            return new ShoppingCartResponse(false,VARIANT_OUT_OF_STOCK,null);
+
+        CartItem cartItem = new CartItem();
+        cartItem.setVariant(variant);
+        cartItem.setQuantity(request.getQuantity());
+        cartItem.setMetalType(request.getMetalType());
+        cartItem.setSizeValue(request.getSizeValue());
+        cartItem.setSizeUnit(request.getSizeUnit());
 
         ShoppingCart shoppingCart = this.shoppingCartDAO.getShoppingCartByCustomerId(customer.getId());
         if(shoppingCart == null){
@@ -70,8 +81,15 @@ public class ShoppingCartService {
 
         if(matchingCartItem != null){
             int newQuantity = matchingCartItem.getQuantity() + cartItem.getQuantity();
+
+            if(newQuantity > variant.getStockQuantity())
+                return new ShoppingCartResponse(false,INSUFFICIENT_STOCK,null);
+
             rowsAffected = this.shoppingCartDAO.updateCartItemQuantity(matchingCartItem.getId(),shoppingCart.getId(),newQuantity);
         }else{
+            if(cartItem.getQuantity() > variant.getStockQuantity())
+                return new ShoppingCartResponse(false,INSUFFICIENT_STOCK,null);
+
             rowsAffected = this.shoppingCartDAO.addCartItem(shoppingCart.getId(),cartItem);
         }
 
@@ -100,6 +118,16 @@ public class ShoppingCartService {
         CartItem cartItem = this.shoppingCartDAO.getCartItemByIdAndCartId(cartItemId,shoppingCart.getId());
         if(cartItem == null)
             return new ShoppingCartResponse(false,CART_ITEM_NOT_FOUND,null);
+
+        ProductVariant variant = this.productVariantDAO.getVariantById(cartItem.getVariant().getId());
+        if(variant == null)
+            return new ShoppingCartResponse(false,VARIANT_NOT_FOUND,null);
+
+        if(variant.getStockQuantity() == null || variant.getStockQuantity() <= 0)
+            return new ShoppingCartResponse(false,VARIANT_OUT_OF_STOCK,null);
+
+        if(quantity > variant.getStockQuantity())
+            return new ShoppingCartResponse(false,INSUFFICIENT_STOCK,null);
 
         int rowsAffected = this.shoppingCartDAO.updateCartItemQuantity(cartItemId,shoppingCart.getId(),quantity);
         if(rowsAffected == 0)
@@ -148,14 +176,12 @@ public class ShoppingCartService {
         return new BasicResponse(true,null);
     }
 
-    private boolean isValidCartItem(CartItem cartItem){
-        if(cartItem == null)
+    private boolean isValidAddCartItemRequest(AddCartItemRequestDTO request){
+        if(request == null)
             return false;
-        if(cartItem.getVariant() == null || cartItem.getVariant().getId() == null)
+        if(request.getVariantId() == null || request.getVariantId() <= 0)
             return false;
-        if(cartItem.getVariant().getId() <= 0)
-            return false;
-        if(cartItem.getQuantity() <= 0)
+        if(request.getQuantity() <= 0)
             return false;
         return true;
     }

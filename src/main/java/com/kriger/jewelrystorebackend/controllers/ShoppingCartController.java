@@ -1,6 +1,7 @@
 package com.kriger.jewelrystorebackend.controllers;
 
-import com.kriger.jewelrystorebackend.models.CartItem;
+import com.kriger.jewelrystorebackend.dtos.AddCartItemRequestDTO;
+import com.kriger.jewelrystorebackend.dtos.UpdateCartItemQuantityRequestDTO;
 import com.kriger.jewelrystorebackend.responses.BasicResponse;
 import com.kriger.jewelrystorebackend.responses.ShoppingCartResponse;
 import com.kriger.jewelrystorebackend.services.ShoppingCartService;
@@ -23,15 +24,15 @@ public class ShoppingCartController {
     }
 
     @PostMapping("/items")
-    public ShoppingCartResponse addCartItem(Authentication authentication,@RequestBody CartItem cartItem){
+    public ShoppingCartResponse addCartItem(Authentication authentication,@RequestBody AddCartItemRequestDTO request){
         String email = authentication.getName();
-        return this.shoppingCartService.addCartItem(email,cartItem);
+        return this.shoppingCartService.addCartItem(email,request);
     }
 
     @PutMapping("/items/{cartItemId}")
-    public ShoppingCartResponse updateCartItemQuantity(Authentication authentication,@PathVariable Long cartItemId,@RequestBody CartItem cartItem){
+    public ShoppingCartResponse updateCartItemQuantity(Authentication authentication,@PathVariable Long cartItemId,@RequestBody UpdateCartItemQuantityRequestDTO request){
         String email = authentication.getName();
-        return this.shoppingCartService.updateCartItemQuantity(email,cartItemId,cartItem.getQuantity());
+        return this.shoppingCartService.updateCartItemQuantity(email,cartItemId,request.getQuantity());
     }
 
     @DeleteMapping("/items/{cartItemId}")
