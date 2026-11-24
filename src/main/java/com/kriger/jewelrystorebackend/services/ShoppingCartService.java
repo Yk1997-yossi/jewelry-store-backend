@@ -85,7 +85,11 @@ public class ShoppingCartService {
             if(newQuantity > variant.getStockQuantity())
                 return new ShoppingCartResponse(false,INSUFFICIENT_STOCK,null);
 
-            rowsAffected = this.shoppingCartDAO.updateCartItemQuantity(matchingCartItem.getId(),shoppingCart.getId(),newQuantity);
+            rowsAffected = this.shoppingCartDAO.updateCartItemQuantity(
+                    matchingCartItem.getId(),
+                    shoppingCart.getId(),
+                    newQuantity
+            );
         }else{
             if(cartItem.getQuantity() > variant.getStockQuantity())
                 return new ShoppingCartResponse(false,INSUFFICIENT_STOCK,null);
@@ -115,11 +119,18 @@ public class ShoppingCartService {
         if(shoppingCart == null)
             return new ShoppingCartResponse(false,SHOPPING_CART_NOT_FOUND,null);
 
-        CartItem cartItem = this.shoppingCartDAO.getCartItemByIdAndCartId(cartItemId,shoppingCart.getId());
+        CartItem cartItem = this.shoppingCartDAO.getCartItemByIdAndCartId(
+                cartItemId,
+                shoppingCart.getId()
+        );
+
         if(cartItem == null)
             return new ShoppingCartResponse(false,CART_ITEM_NOT_FOUND,null);
 
-        ProductVariant variant = this.productVariantDAO.getVariantById(cartItem.getVariant().getId());
+        ProductVariant variant = this.productVariantDAO.getVariantById(
+                cartItem.getVariant().getId()
+        );
+
         if(variant == null)
             return new ShoppingCartResponse(false,VARIANT_NOT_FOUND,null);
 
@@ -129,7 +140,12 @@ public class ShoppingCartService {
         if(quantity > variant.getStockQuantity())
             return new ShoppingCartResponse(false,INSUFFICIENT_STOCK,null);
 
-        int rowsAffected = this.shoppingCartDAO.updateCartItemQuantity(cartItemId,shoppingCart.getId(),quantity);
+        int rowsAffected = this.shoppingCartDAO.updateCartItemQuantity(
+                cartItemId,
+                shoppingCart.getId(),
+                quantity
+        );
+
         if(rowsAffected == 0)
             return new ShoppingCartResponse(false,CART_ITEM_UPDATE_FAILED,null);
 
@@ -142,15 +158,26 @@ public class ShoppingCartService {
         if(customer == null)
             return new BasicResponse(false,CUSTOMER_NOT_FOUND);
 
+        if(cartItemId == null || cartItemId <= 0)
+            return new BasicResponse(false,CART_ITEM_NOT_FOUND);
+
         ShoppingCart shoppingCart = this.shoppingCartDAO.getShoppingCartByCustomerId(customer.getId());
         if(shoppingCart == null)
             return new BasicResponse(false,SHOPPING_CART_NOT_FOUND);
 
-        CartItem cartItem = this.shoppingCartDAO.getCartItemByIdAndCartId(cartItemId,shoppingCart.getId());
+        CartItem cartItem = this.shoppingCartDAO.getCartItemByIdAndCartId(
+                cartItemId,
+                shoppingCart.getId()
+        );
+
         if(cartItem == null)
             return new BasicResponse(false,CART_ITEM_NOT_FOUND);
 
-        int rowsAffected = this.shoppingCartDAO.removeCartItemByIdAndCartId(cartItemId,shoppingCart.getId());
+        int rowsAffected = this.shoppingCartDAO.removeCartItemByIdAndCartId(
+                cartItemId,
+                shoppingCart.getId()
+        );
+
         if(rowsAffected == 0)
             return new BasicResponse(false,CART_ITEM_REMOVE_FAILED);
 
@@ -179,10 +206,13 @@ public class ShoppingCartService {
     private boolean isValidAddCartItemRequest(AddCartItemRequestDTO request){
         if(request == null)
             return false;
+
         if(request.getVariantId() == null || request.getVariantId() <= 0)
             return false;
+
         if(request.getQuantity() <= 0)
             return false;
+
         return true;
     }
 }

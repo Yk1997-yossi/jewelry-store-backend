@@ -10,7 +10,10 @@ import com.kriger.jewelrystorebackend.responses.BasicResponse;
 import com.kriger.jewelrystorebackend.responses.ProductListResponse;
 import com.kriger.jewelrystorebackend.responses.ProductResponse;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Locale;
 
 import static com.kriger.jewelrystorebackend.errors.ProductErrors.*;
 
@@ -20,67 +23,146 @@ public class ProductService {
     private final CategoryDAO categoryDAO;
     private final MediaDAO mediaDAO;
 
-    public ProductService(ProductDAO productDAO, CategoryDAO categoryDAO, MediaDAO mediaDAO) {
+    public ProductService(ProductDAO productDAO,CategoryDAO categoryDAO,MediaDAO mediaDAO){
         this.productDAO = productDAO;
         this.categoryDAO = categoryDAO;
         this.mediaDAO = mediaDAO;
     }
 
-    public ProductListResponse getAllProducts() {
+    public ProductListResponse getAllProducts(){
         List<Product> productList = this.productDAO.getAllProducts();
         if(productList == null || productList.isEmpty())
-            return new ProductListResponse(false, EMPTY_PRODUCT_LIST, null);
+            return new ProductListResponse(false,EMPTY_PRODUCT_LIST,null);
 
-        for (int i = 0; i < productList.size(); i++){
+        for(int i = 0; i < productList.size(); i++){
             List<Media> mediaList = this.mediaDAO.getMediaListByProductId(productList.get(i).getId());
             productList.get(i).setMediaList(mediaList);
         }
-        return new ProductListResponse(true, null, productList);
+
+        return new ProductListResponse(true,null,productList);
     }
 
-    public ProductResponse getProductById(Long id) {
-        if (id == null || id <= 0) {
-            return new ProductResponse(false, INVALID_PRODUCT_ID, null);
-        }
+    public ProductResponse getProductById(Long id){
+        if(id == null || id <= 0)
+            return new ProductResponse(false,INVALID_PRODUCT_ID,null);
 
-        Product product = productDAO.getProductById(id);
+        Product product = this.productDAO.getProductById(id);
         if(product == null)
-            return new ProductResponse(false, PRODUCT_NOT_FOUND, null);
+            return new ProductResponse(false,PRODUCT_NOT_FOUND,null);
 
         List<Media> mediaList = this.mediaDAO.getMediaListByProductId(id);
         product.setMediaList(mediaList);
 
-        return new ProductResponse(true, null, product);
+        return new ProductResponse(true,null,product);
     }
 
-    public BasicResponse removeProductById(Long id) {
-        if (id == null || id <= 0)
-            return new BasicResponse(false, INVALID_PRODUCT_ID);
+    public ProductResponse addProduct(Product product){
+        if(product == null)
+            return new ProductResponse(false,INVALID_PRODUCT,null);
 
-        Product existingProduct = this.productDAO.getProductById(id);
-        if (existingProduct == null)
-            return new BasicResponse(false, PRODUCT_NOT_FOUND);
+        if(product.getCategory() == null ||
+                product.getCategory().getId() == null ||
+                product.getCategory().getId() <= 0)
+            return new ProductResponse(false,INVALID_CATEGORY_ID,null);
 
-        int rowsAffected = this.productDAO.removeProductById(id);
-        if (rowsAffected == 0)
-            return new BasicResponse(false, DATABASE_ERROR); // הוספתי פה את השגיאה, תוודא שהיא קיימת בקובץ
+        Category category = this.categoryDAO.getCategoryById(product.getCategory().getId());
+        if(category == null)
+            return new ProductResponse(false,CATEGORY_NOT_FOUND,null);
 
-        return new BasicResponse(true, null);
-    }
+        if(!isValidProductName(product.getName()))
+            return new ProductResponse(false,INVALID_PRODUCT_NAME,null);
 
-    public ProductResponse addProduct(Product product) {
-        if (product.getCategory() == null || product.getCategory().getId() == null)
-            return new ProductResponse(false, INVALID_CATEGORY_ID, null);
+        if(!isValidBaseSku(product.getBaseSku()))
+            return new ProductResponse(false,INVALID_BASE_SKU,null);
 
-        Long categoryId = product.getCategory().getId();
-        Category existingCategory = this.categoryDAO.getCategoryById(categoryId);
-        if (existingCategory == null)
-            return new ProductResponse(false, CATEGORY_NOT_FOUND, null);
+        if(!isValidProductSlug(product.getSlug()))
+            return new ProductResponse(false,INVALID_PRODUCT_SLUG,null);
+
+        product.setName(product.getName().trim());
+        product.setBaseSku(product.getBaseSku().trim().toUpperCase(Locale.ROOT));
+        product.setSlug(product.getSlug().trim().toLowerCase(Locale.ROOT));
+        product.setCategory(category);
+
+        if(this.productDAO.isBaseSkuExists(product.getBaseSku()))
+            return new ProductResponse(false,PRODUCT_SKU_ALREADY_EXISTS,null);
+
+        if(this.productDAO.isSlugExists(product.getSlug()))
+            return new ProductResponse(false,PRODUCT_SLUG_ALREADY_EXISTS,null);
+
+        if(product.getDynamicDiamondsCount() == null)
+            product.setDynamicDiamondsCount(0);
+
+        if(product.getFixedDiamondsCount() == null)
+            product.setFixedDiamondsCount(0);
+
+        if(product.getFixedDiamondsWeight() == null)
+            product.setFixedDiamondsWeight(BigDecimal.ZERO);
+
+        if(product.getIsActive() == null)
+            product.setIsActive(true);
+
+        if(product.getDynamicDiamondsCount() < 0 ||
+                product.getFixedDiamondsCount() < 0)
+            return new ProductResponse(false,INVALID_DIAMONDS_COUNT,null);
+
+        if(product.getFixedDiamondsWeight().compareTo(BigDecimal.ZERO) < 0)
+            return new ProductResponse(false,INVALID_DIAMONDS_WEIGHT,null);
+
+        if(product.getDescription() != null)
+            product.setDescription(product.getDescription().trim());
 
         int rowsAffected = this.productDAO.addProduct(product);
-        if (rowsAffected == 0)
-            return new ProductResponse(false, PRODUCT_ADD_FAILED, null); // הוספתי פה את השגיאה, תוודא שהיא קיימת בקובץ
+        if(rowsAffected == 0)
+            return new ProductResponse(false,PRODUCT_ADD_FAILED,null);
 
-        return new ProductResponse(true, null, product);
+        return new ProductResponse(true,null,product);
+    }
+
+    public BasicResponse removeProductById(Long id){
+        if(id == null || id <= 0)
+            return new BasicResponse(false,INVALID_PRODUCT_ID);
+
+        Product product = this.productDAO.getProductById(id);
+        if(product == null)
+            return new BasicResponse(false,PRODUCT_NOT_FOUND);
+
+        int rowsAffected = this.productDAO.removeProductById(id);
+        if(rowsAffected == 0)
+            return new BasicResponse(false,PRODUCT_DELETE_FAILED);
+
+        return new BasicResponse(true,null);
+    }
+
+    private boolean isValidProductName(String name){
+        if(name == null || name.trim().isEmpty())
+            return false;
+
+        return name.trim().length() >= 2 && name.trim().length() <= 150;
+    }
+
+    private boolean isValidBaseSku(String baseSku){
+        if(baseSku == null || baseSku.trim().isEmpty())
+            return false;
+
+        String normalizedBaseSku = baseSku.trim().toUpperCase(Locale.ROOT);
+
+        if(normalizedBaseSku.length() > 50)
+            return false;
+
+        String baseSkuRegex = "^[A-Z0-9]+(?:[-_][A-Z0-9]+)*$";
+        return normalizedBaseSku.matches(baseSkuRegex);
+    }
+
+    private boolean isValidProductSlug(String slug){
+        if(slug == null || slug.trim().isEmpty())
+            return false;
+
+        String normalizedSlug = slug.trim().toLowerCase(Locale.ROOT);
+
+        if(normalizedSlug.length() > 150)
+            return false;
+
+        String slugRegex = "^[a-z0-9]+(?:-[a-z0-9]+)*$";
+        return normalizedSlug.matches(slugRegex);
     }
 }

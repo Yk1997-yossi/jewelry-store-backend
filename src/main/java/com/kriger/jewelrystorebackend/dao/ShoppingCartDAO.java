@@ -79,7 +79,7 @@ public class ShoppingCartDAO {
 
     public List<CartItem> getAllCartItemsByCartId(Long cartId) {
         List<CartItem> cartItemList = new ArrayList<>();
-        String sql = "SELECT id,variant_id,metal_type,size_value,size_unit,quantity FROM cart_items WHERE cart_id = ?";
+        String sql = "SELECT ci.id,ci.variant_id,ci.metal_type,ci.size_value,ci.size_unit,ci.quantity,pv.product_id,pv.weight_per_stone,pv.total_carat,pv.price,pv.stock_quantity,pv.created_at AS variant_created_at,pv.updated_at AS variant_updated_at FROM cart_items ci JOIN product_variants pv ON ci.variant_id = pv.id WHERE ci.cart_id = ?";
         try(Connection connection = this.dataSource.getConnection();
             PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setLong(1,cartId);
@@ -90,8 +90,19 @@ public class ShoppingCartDAO {
 
                 ProductVariant variant = new ProductVariant();
                 variant.setId(rs.getLong("variant_id"));
-                cartItem.setVariant(variant);
+                variant.setProductId(rs.getLong("product_id"));
+                variant.setWeightPerStone(rs.getBigDecimal("weight_per_stone"));
+                variant.setTotalCarat(rs.getBigDecimal("total_carat"));
+                variant.setPrice(rs.getBigDecimal("price"));
+                variant.setStockQuantity(rs.getInt("stock_quantity"));
 
+                if(rs.getTimestamp("variant_created_at") != null)
+                    variant.setCreatedAt(rs.getTimestamp("variant_created_at").toLocalDateTime());
+
+                if(rs.getTimestamp("variant_updated_at") != null)
+                    variant.setUpdatedAt(rs.getTimestamp("variant_updated_at").toLocalDateTime());
+
+                cartItem.setVariant(variant);
                 cartItem.setMetalType(rs.getString("metal_type"));
                 cartItem.setSizeValue(rs.getBigDecimal("size_value"));
                 cartItem.setSizeUnit(rs.getString("size_unit"));
@@ -107,7 +118,7 @@ public class ShoppingCartDAO {
 
     public CartItem getCartItemByIdAndCartId(Long cartItemId,Long cartId) {
         CartItem cartItem = null;
-        String sql = "SELECT id,variant_id,metal_type,size_value,size_unit,quantity FROM cart_items WHERE id = ? AND cart_id = ?";
+        String sql = "SELECT ci.id,ci.variant_id,ci.metal_type,ci.size_value,ci.size_unit,ci.quantity,pv.product_id,pv.weight_per_stone,pv.total_carat,pv.price,pv.stock_quantity,pv.created_at AS variant_created_at,pv.updated_at AS variant_updated_at FROM cart_items ci JOIN product_variants pv ON ci.variant_id = pv.id WHERE ci.id = ? AND ci.cart_id = ?";
         try(Connection connection = this.dataSource.getConnection();
             PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setLong(1,cartItemId);
@@ -119,8 +130,19 @@ public class ShoppingCartDAO {
 
                 ProductVariant variant = new ProductVariant();
                 variant.setId(rs.getLong("variant_id"));
-                cartItem.setVariant(variant);
+                variant.setProductId(rs.getLong("product_id"));
+                variant.setWeightPerStone(rs.getBigDecimal("weight_per_stone"));
+                variant.setTotalCarat(rs.getBigDecimal("total_carat"));
+                variant.setPrice(rs.getBigDecimal("price"));
+                variant.setStockQuantity(rs.getInt("stock_quantity"));
 
+                if(rs.getTimestamp("variant_created_at") != null)
+                    variant.setCreatedAt(rs.getTimestamp("variant_created_at").toLocalDateTime());
+
+                if(rs.getTimestamp("variant_updated_at") != null)
+                    variant.setUpdatedAt(rs.getTimestamp("variant_updated_at").toLocalDateTime());
+
+                cartItem.setVariant(variant);
                 cartItem.setMetalType(rs.getString("metal_type"));
                 cartItem.setSizeValue(rs.getBigDecimal("size_value"));
                 cartItem.setSizeUnit(rs.getString("size_unit"));
@@ -135,7 +157,7 @@ public class ShoppingCartDAO {
 
     public CartItem getMatchingCartItem(Long cartId,CartItem cartItem) {
         CartItem matchingCartItem = null;
-        String sql = "SELECT id,variant_id,metal_type,size_value,size_unit,quantity FROM cart_items WHERE cart_id = ? AND variant_id = ? AND metal_type <=> ? AND size_value <=> ? AND size_unit <=> ?";
+        String sql = "SELECT ci.id,ci.variant_id,ci.metal_type,ci.size_value,ci.size_unit,ci.quantity,pv.product_id,pv.weight_per_stone,pv.total_carat,pv.price,pv.stock_quantity,pv.created_at AS variant_created_at,pv.updated_at AS variant_updated_at FROM cart_items ci JOIN product_variants pv ON ci.variant_id = pv.id WHERE ci.cart_id = ? AND ci.variant_id = ? AND ci.metal_type <=> ? AND ci.size_value <=> ? AND ci.size_unit <=> ?";
         try(Connection connection = this.dataSource.getConnection();
             PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setLong(1,cartId);
@@ -150,8 +172,19 @@ public class ShoppingCartDAO {
 
                 ProductVariant variant = new ProductVariant();
                 variant.setId(rs.getLong("variant_id"));
-                matchingCartItem.setVariant(variant);
+                variant.setProductId(rs.getLong("product_id"));
+                variant.setWeightPerStone(rs.getBigDecimal("weight_per_stone"));
+                variant.setTotalCarat(rs.getBigDecimal("total_carat"));
+                variant.setPrice(rs.getBigDecimal("price"));
+                variant.setStockQuantity(rs.getInt("stock_quantity"));
 
+                if(rs.getTimestamp("variant_created_at") != null)
+                    variant.setCreatedAt(rs.getTimestamp("variant_created_at").toLocalDateTime());
+
+                if(rs.getTimestamp("variant_updated_at") != null)
+                    variant.setUpdatedAt(rs.getTimestamp("variant_updated_at").toLocalDateTime());
+
+                matchingCartItem.setVariant(variant);
                 matchingCartItem.setMetalType(rs.getString("metal_type"));
                 matchingCartItem.setSizeValue(rs.getBigDecimal("size_value"));
                 matchingCartItem.setSizeUnit(rs.getString("size_unit"));
