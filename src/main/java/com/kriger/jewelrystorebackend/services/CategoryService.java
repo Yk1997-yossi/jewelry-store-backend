@@ -22,8 +22,8 @@ public class CategoryService {
 
     public CategoryListResponse getAllCategories(){
         List<Category> categories = this.categoryDAO.getAllCategories();
-        if(categories == null || categories.isEmpty())
-            return new CategoryListResponse(false,CATEGORIES_NOT_FOUND,null);
+        if(categories == null)
+            return new CategoryListResponse(false,CATEGORY_FETCH_FAILED,null);
 
         return new CategoryListResponse(true,null,categories);
     }
@@ -62,7 +62,36 @@ public class CategoryService {
 
         return new CategoryResponse(true,null,category);
     }
+    public CategoryResponse updateCategory(Long id,Category category){
+        if(id == null || id <= 0)
+            return new CategoryResponse(false,INVALID_CATEGORY_ID,null);
 
+        if(category == null || !isValidCategoryName(category.getName()))
+            return new CategoryResponse(false,INVALID_CATEGORY_NAME,null);
+
+        if(!isValidCategorySlug(category.getSlug()))
+            return new CategoryResponse(false,INVALID_CATEGORY_SLUG,null);
+
+        Category existingCategory = this.categoryDAO.getCategoryById(id);
+        if(existingCategory == null)
+            return new CategoryResponse(false,CATEGORY_NOT_FOUND,null);
+
+        category.setName(category.getName().trim());
+        category.setSlug(category.getSlug().trim().toLowerCase(Locale.ROOT));
+
+        Category categoryWithSameSlug = this.categoryDAO.getCategoryBySlug(category.getSlug());
+        if(categoryWithSameSlug != null && !id.equals(categoryWithSameSlug.getId()))
+            return new CategoryResponse(false,CATEGORY_SLUG_ALREADY_EXISTS,null);
+
+        existingCategory.setName(category.getName());
+        existingCategory.setSlug(category.getSlug());
+
+        int rowsAffected = this.categoryDAO.updateCategory(existingCategory);
+        if(rowsAffected == 0)
+            return new CategoryResponse(false,CATEGORY_UPDATE_FAILED,null);
+
+        return getCategoryById(id);
+    }
     public BasicResponse removeCategoryById(Long id){
         if(id == null || id <= 0)
             return new BasicResponse(false,INVALID_CATEGORY_ID);

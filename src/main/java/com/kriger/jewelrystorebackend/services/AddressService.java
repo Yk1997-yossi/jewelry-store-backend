@@ -45,8 +45,8 @@ public class AddressService {
             return new AddressListResponse(false,CUSTOMER_NOT_FOUND,null);
 
         List<Address> addressList = this.addressDao.getAllAddressesByCustomerId(customer.getId());
-        if(addressList == null || addressList.isEmpty())
-            return new AddressListResponse(false,EMPTY_ADDRESS_LIST,null);
+        if(addressList == null)
+            return new AddressListResponse(false,ADDRESS_FETCH_FAILED,null);
 
         return new AddressListResponse(true,null,addressList);
     }

@@ -11,4 +11,6 @@ public class MediaErrors {
     public static final String MEDIA_DELETE_FAILED = "שגיאה במחיקת המדיה ממסד הנתונים.";
     public static final String MEDIA_NOT_FOUND = "המדיה לא נמצאה.";
     public static final String EMPTY_MEDIA_LIST = "לא נמצאה מדיה עבור מוצר זה.";
+    public static final String MEDIA_UPDATE_FAILED = "שגיאה בעדכון המדיה במסד הנתונים.";
+    public static final String MEDIA_FETCH_FAILED = "שגיאה בטעינת המדיה ממסד הנתונים.";
 }

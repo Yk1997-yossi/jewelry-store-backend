@@ -1,4 +1,5 @@
 package com.kriger.jewelrystorebackend.models;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -12,13 +13,14 @@ public class OrderItem {
     private String sizeUnit;
     private Integer quantity;
     private BigDecimal priceAtPurchase;
+    private String engravingText;
+    private String specialNotes;
+    private BigDecimal goldsmithCost;
     private LocalDateTime createdAt;
 
     public OrderItem() {}
 
-    public OrderItem(Long id, Order order, ProductVariant variant, String metalType,
-                     BigDecimal sizeValue, String sizeUnit, Integer quantity,
-                     BigDecimal priceAtPurchase, LocalDateTime createdAt) {
+    public OrderItem(Long id,Order order,ProductVariant variant,String metalType,BigDecimal sizeValue,String sizeUnit,Integer quantity,BigDecimal priceAtPurchase,LocalDateTime createdAt){
         this.id = id;
         this.order = order;
         this.variant = variant;
@@ -53,6 +55,15 @@ public class OrderItem {
 
     public BigDecimal getPriceAtPurchase() { return priceAtPurchase; }
     public void setPriceAtPurchase(BigDecimal priceAtPurchase) { this.priceAtPurchase = priceAtPurchase; }
+
+    public String getEngravingText() { return engravingText; }
+    public void setEngravingText(String engravingText) { this.engravingText = engravingText; }
+
+    public String getSpecialNotes() { return specialNotes; }
+    public void setSpecialNotes(String specialNotes) { this.specialNotes = specialNotes; }
+
+    public BigDecimal getGoldsmithCost() { return goldsmithCost; }
+    public void setGoldsmithCost(BigDecimal goldsmithCost) { this.goldsmithCost = goldsmithCost; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

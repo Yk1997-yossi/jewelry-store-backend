@@ -1,4 +1,5 @@
 package com.kriger.jewelrystorebackend.models;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -12,11 +13,11 @@ public class Payment {
     private String errorCode;
     private String errorMessage;
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     public Payment() {}
 
-    public Payment(Long id, Order order, String transactionId, BigDecimal amount, String status,
-                   String errorCode, String errorMessage, LocalDateTime createdAt) {
+    public Payment(Long id,Order order,String transactionId,BigDecimal amount,String status,String errorCode,String errorMessage,LocalDateTime createdAt){
         this.id = id;
         this.order = order;
         this.transactionId = transactionId;
@@ -50,4 +51,7 @@ public class Payment {
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 }

@@ -93,6 +93,7 @@ public class AddressDAO {
         }catch(SQLException e){
             System.err.println("Error fetching addresses from database:");
             e.printStackTrace();
+            return null;
         }
         return addressList;
     }

@@ -194,6 +194,7 @@ create table order_items
         primary key,
     order_id       bigint                              not null,
     variant_id     bigint                              not null,
+    quantity       int       default 1                 not null,
     metal_type     varchar(50)                         not null,
     size_value     decimal(5, 2)                       null,
     size_unit      varchar(20)                         null,

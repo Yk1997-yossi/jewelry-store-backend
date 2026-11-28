@@ -8,5 +8,7 @@ public class CategoryErrors {
     public static final String INVALID_CATEGORY_SLUG = "כתובת הקטגוריה אינה תקינה.";
     public static final String CATEGORY_SLUG_ALREADY_EXISTS = "כבר קיימת קטגוריה עם כתובת זו.";
     public static final String CATEGORY_ADD_FAILED = "הוספת הקטגוריה נכשלה.";
+    public static final String CATEGORY_UPDATE_FAILED = "עדכון הקטגוריה נכשל.";
     public static final String CATEGORY_DELETE_FAILED = "מחיקת הקטגוריה נכשלה.";
+    public static final String CATEGORY_FETCH_FAILED = "שגיאה בטעינת הקטגוריות ממסד הנתונים.";
 }

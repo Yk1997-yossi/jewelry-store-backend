@@ -25,6 +25,10 @@ public class ProductController {
         return this.productService.addProduct(product);
     }
     @DeleteMapping("/{id}")
+    @PutMapping("/{id}")
+    public BasicResponse updateProduct(@PathVariable Long id,@RequestBody Product product){
+        return this.productService.updateProduct(id,product);
+    }
     public BasicResponse removeProductById(@PathVariable Long id){
         return this.productService.removeProductById(id);
     }

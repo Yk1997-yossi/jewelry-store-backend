@@ -62,6 +62,7 @@ public class ProductDAO {
         }catch(SQLException e){
             System.err.println("Error fetching products from database:");
             e.printStackTrace();
+            return null;
         }
         return productList;
     }
@@ -185,6 +186,52 @@ public class ProductDAO {
             System.err.println("Error deleting product:");
             e.printStackTrace();
             return 0;
+        }
+    }
+
+    public int updateProduct(Product product){
+        String sql = "UPDATE products SET category_id = ?,base_sku = ?,name = ?,slug = ?,description = ?,is_active = ?,dynamic_diamonds_count = ?,fixed_diamonds_count = ?,fixed_diamonds_weight = ? WHERE id = ?";
+        try(Connection connection = this.dataSource.getConnection();
+            PreparedStatement ps = connection.prepareStatement(sql)){
+            ps.setLong(1,product.getCategory().getId());
+            ps.setString(2,product.getBaseSku());
+            ps.setString(3,product.getName());
+            ps.setString(4,product.getSlug());
+            ps.setString(5,product.getDescription());
+            ps.setBoolean(6,product.getIsActive());
+            ps.setInt(7,product.getDynamicDiamondsCount());
+            ps.setInt(8,product.getFixedDiamondsCount());
+            ps.setBigDecimal(9,product.getFixedDiamondsWeight());
+            ps.setLong(10,product.getId());
+            return ps.executeUpdate();
+        }catch(SQLException e){
+            System.err.println("Error updating product:");
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
+    public boolean isBaseSkuUsedByAnotherProduct(String baseSku,Long id) throws SQLException{
+        String sql = "SELECT id FROM products WHERE base_sku = ? AND id <> ?";
+        try(Connection connection = this.dataSource.getConnection();
+            PreparedStatement ps = connection.prepareStatement(sql)){
+            ps.setString(1,baseSku);
+            ps.setLong(2,id);
+            try(ResultSet rs = ps.executeQuery()){
+                return rs.next();
+            }
+        }
+    }
+
+    public boolean isSlugUsedByAnotherProduct(String slug,Long id) throws SQLException{
+        String sql = "SELECT id FROM products WHERE slug = ? AND id <> ?";
+        try(Connection connection = this.dataSource.getConnection();
+            PreparedStatement ps = connection.prepareStatement(sql)){
+            ps.setString(1,slug);
+            ps.setLong(2,id);
+            try(ResultSet rs = ps.executeQuery()){
+                return rs.next();
+            }
         }
     }
 }

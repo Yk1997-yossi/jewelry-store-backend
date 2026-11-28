@@ -51,6 +51,34 @@ public class MediaService {
         return new MediaResponse(true,null,media);
     }
 
+    public MediaResponse updateMedia(Long id,Media media){
+        if(id == null || id <= 0)
+            return new MediaResponse(false,INVALID_MEDIA_ID,null);
+
+        if(media == null)
+            return new MediaResponse(false,INVALID_MEDIA,null);
+
+        if(!isValidMediaUrl(media.getUrl()))
+            return new MediaResponse(false,INVALID_MEDIA_URL,null);
+
+        if(!isValidMediaType(media.getMediaType()))
+            return new MediaResponse(false,INVALID_MEDIA_TYPE,null);
+
+        Media existingMedia = this.mediaDAO.getMediaById(id);
+        if(existingMedia == null)
+            return new MediaResponse(false,MEDIA_NOT_FOUND,null);
+
+        existingMedia.setUrl(media.getUrl().trim());
+        existingMedia.setMediaType(media.getMediaType().trim().toUpperCase(Locale.ROOT));
+        existingMedia.setMain(media.isMain());
+
+        int rowsAffected = this.mediaDAO.updateMedia(existingMedia);
+        if(rowsAffected == 0)
+            return new MediaResponse(false,MEDIA_UPDATE_FAILED,null);
+
+        return new MediaResponse(true,null,existingMedia);
+    }
+
     public MediaResponse getMediaById(Long id){
         if(id == null || id <= 0)
             return new MediaResponse(false,INVALID_MEDIA_ID,null);
@@ -71,8 +99,8 @@ public class MediaService {
             return new MediaListResponse(false,PRODUCT_NOT_FOUND,null);
 
         List<Media> mediaList = this.mediaDAO.getMediaListByProductId(productId);
-        if(mediaList == null || mediaList.isEmpty())
-            return new MediaListResponse(false,EMPTY_MEDIA_LIST,null);
+        if(mediaList == null)
+            return new MediaListResponse(false,MEDIA_FETCH_FAILED,null);
 
         return new MediaListResponse(true,null,mediaList);
     }
@@ -101,8 +129,7 @@ public class MediaService {
         if(normalizedUrl.length() > 512)
             return false;
 
-        return normalizedUrl.startsWith("http://") ||
-                normalizedUrl.startsWith("https://");
+        return normalizedUrl.startsWith("http://") || normalizedUrl.startsWith("https://");
     }
 
     private boolean isValidMediaType(String mediaType){
@@ -111,7 +138,6 @@ public class MediaService {
 
         String normalizedMediaType = mediaType.trim().toUpperCase(Locale.ROOT);
 
-        return normalizedMediaType.equals("IMAGE") ||
-                normalizedMediaType.equals("VIDEO");
+        return normalizedMediaType.equals("IMAGE") || normalizedMediaType.equals("VIDEO");
     }
 }

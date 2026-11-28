@@ -19,7 +19,10 @@ public class MediaController {
     public MediaResponse addMedia(@RequestBody Media media){
         return this.mediaService.addMedia(media);
     }
-
+    @PutMapping("/{id}")
+    public MediaResponse updateMedia(@PathVariable Long id,@RequestBody Media media){
+        return this.mediaService.updateMedia(id,media);
+    }
     @GetMapping("/{id}")
     public MediaResponse getMediaById(@PathVariable Long id){
         return this.mediaService.getMediaById(id);

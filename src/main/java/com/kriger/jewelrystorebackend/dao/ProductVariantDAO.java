@@ -7,6 +7,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,13 +24,20 @@ public class ProductVariantDAO {
                 "product_id,weight_per_stone,total_carat,price,stock_quantity,created_at,updated_at) " +
                 "VALUES(?,?,?,?,?,NOW(),NOW())";
         try(Connection connection = this.dataSource.getConnection();
-            PreparedStatement ps = connection.prepareStatement(sql)){
+            PreparedStatement ps = connection.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS)){
             ps.setLong(1,variant.getProductId());
             ps.setBigDecimal(2,variant.getWeightPerStone());
             ps.setBigDecimal(3,variant.getTotalCarat());
             ps.setBigDecimal(4,variant.getPrice());
             ps.setInt(5,variant.getStockQuantity());
-            return ps.executeUpdate();
+            int rowsAffected = ps.executeUpdate();
+            if(rowsAffected > 0){
+                try(ResultSet rs = ps.getGeneratedKeys()){
+                    if(rs.next())
+                        variant.setId(rs.getLong(1));
+                }
+            }
+            return rowsAffected;
         }catch (SQLException e){
             e.printStackTrace();
             return 0;
@@ -63,6 +71,7 @@ public class ProductVariantDAO {
             }
         } catch (SQLException e){
             e.printStackTrace();
+            return null;
         }
         return variantList;
     }

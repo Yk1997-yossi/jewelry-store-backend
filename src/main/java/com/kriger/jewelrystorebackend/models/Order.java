@@ -1,4 +1,5 @@
 package com.kriger.jewelrystorebackend.models;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -7,12 +8,14 @@ import java.util.List;
 public class Order {
 
     private Long id;
-    private Customer customer; // הכלה של הלקוח
-    private Coupon coupon; // הכלה של הקופון (יכול להיות null)
+    private Customer customer;
+    private Coupon coupon;
     private BigDecimal totalPrice;
-    private String status; // למשל: 'PENDING', 'SHIPPED', 'CANCELLED'
+    private String status;
     private String shippingAddress;
-    private List<OrderItem> items; // הכלה של רשימת הפריטים בהזמנה
+    private String shippingCompany;
+    private String trackingNumber;
+    private List<OrderItem> items;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -20,9 +23,7 @@ public class Order {
         this.items = new ArrayList<>();
     }
 
-    public Order(Long id, Customer customer, Coupon coupon, BigDecimal totalPrice,
-                 String status, String shippingAddress, List<OrderItem> items,
-                 LocalDateTime createdAt, LocalDateTime updatedAt) {
+    public Order(Long id, Customer customer, Coupon coupon, BigDecimal totalPrice, String status, String shippingAddress, List<OrderItem> items, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.customer = customer;
         this.coupon = coupon;
@@ -51,6 +52,12 @@ public class Order {
 
     public String getShippingAddress() { return shippingAddress; }
     public void setShippingAddress(String shippingAddress) { this.shippingAddress = shippingAddress; }
+
+    public String getShippingCompany() { return shippingCompany; }
+    public void setShippingCompany(String shippingCompany) { this.shippingCompany = shippingCompany; }
+
+    public String getTrackingNumber() { return trackingNumber; }
+    public void setTrackingNumber(String trackingNumber) { this.trackingNumber = trackingNumber; }
 
     public List<OrderItem> getItems() { return items; }
     public void setItems(List<OrderItem> items) { this.items = items; }

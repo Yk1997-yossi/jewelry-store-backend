@@ -17,4 +17,5 @@ public class ProductErrors {
     public static final String PRODUCT_ADD_FAILED = "שגיאה בשמירת המוצר במסד הנתונים.";
     public static final String PRODUCT_DELETE_FAILED = "שגיאה במחיקת המוצר ממסד הנתונים.";
     public static final String DATABASE_ERROR = "שגיאה במסד הנתונים בעת ביצוע הפעולה.";
+    public static final String PRODUCT_UPDATE_FAILED = "לא ניתן לעדכן את המוצר.";
 }

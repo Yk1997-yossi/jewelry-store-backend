@@ -43,6 +43,7 @@ public class CategoryDAO {
         }catch(SQLException e){
             System.err.println("Error fetching categories from database:");
             e.printStackTrace();
+            return null;
         }
         return categoryList;
     }
@@ -131,6 +132,20 @@ public class CategoryDAO {
             return ps.executeUpdate();
         }catch(SQLException e){
             System.err.println("Error deleting category:");
+            e.printStackTrace();
+            return 0;
+        }
+    }
+    public int updateCategory(Category category){
+        String sql = "UPDATE categories SET name = ?,slug = ? WHERE id = ?";
+        try(Connection connection = this.dataSource.getConnection();
+            PreparedStatement ps = connection.prepareStatement(sql)){
+            ps.setString(1,category.getName());
+            ps.setString(2,category.getSlug());
+            ps.setLong(3,category.getId());
+            return ps.executeUpdate();
+        }catch(SQLException e){
+            System.err.println("Error updating category:");
             e.printStackTrace();
             return 0;
         }

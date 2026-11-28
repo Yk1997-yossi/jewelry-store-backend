@@ -55,8 +55,8 @@ public class ProductVariantService {
             return new ProductVariantListResponse(false,PRODUCT_NOT_FOUND,null);
 
         List<ProductVariant> variantList = this.productVariantDAO.getVariantsByProductId(productId);
-        if(variantList == null || variantList.isEmpty())
-            return new ProductVariantListResponse(false,EMPTY_VARIANT_LIST,null);
+        if(variantList == null)
+            return new ProductVariantListResponse(false,DATABASE_ERROR,null);
 
         return new ProductVariantListResponse(true,null,variantList);
     }
